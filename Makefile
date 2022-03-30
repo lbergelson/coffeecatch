@@ -9,7 +9,7 @@ CFILES = coffeecatch.c
 all: gcc test
 
 clean:
-	rm -f *.o *.obj *.so* *.dll *.exe *.pdb *.exp *.lib sample
+	rm -f *.o *.obj *.so* *.dylib *.dll *.exe *.pdb *.exp *.lib sample
 
 tar:
 	rm -f coffeecatch.tgz
@@ -20,9 +20,9 @@ gcc:
 		-W -Wall -Wextra -Werror -Wno-unused-function \
 		-D_REENTRANT -D_GNU_SOURCE \
 		$(CFILES)
-	gcc -shared -fPIC -O3 -Wl,-O1 -Wl,--no-undefined \
-		-rdynamic -shared -Wl,-soname=libcoffeecatch.so \
-		coffeecatch.o -o libcoffeecatch.so \
+	gcc -shared -fPIC -O3  \
+		-rdynamic -shared \
+		coffeecatch.o -o libcoffeecatch.dylib \
 		-ldl -lpthread
 
 test:
@@ -30,7 +30,7 @@ test:
 		-W -Wall -Wextra -Werror -Wno-unused-function \
 		-D_REENTRANT \
 		sample.c -o sample.o
-	gcc -fPIC -O3 -Wl,-O1 \
+	gcc -fPIC -O3 \
 		-lcoffeecatch -L. \
 		sample.o -o sample
 

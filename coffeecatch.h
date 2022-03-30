@@ -186,7 +186,9 @@ extern size_t coffeecatch_get_backtrace_size(void);
  * Get the backtrace pointer, or 0 upon error.
  * This function can only be called inside a COFFEE_CATCH() block.
  */
+#ifdef __ANDROID__
 extern uintptr_t coffeecatch_get_backtrace(ssize_t index);
+#endif
 
 /**
  * Enumerate the backtrace with information.

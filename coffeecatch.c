@@ -1000,6 +1000,7 @@ static const char* coffeecatch_desc_sig(int sig, int code) {
       return "Child";
     }
     break;
+#ifndef __APPLE__
   case SIGPOLL:
     switch(code) {
     case POLL_IN:
@@ -1018,6 +1019,7 @@ static const char* coffeecatch_desc_sig(int sig, int code) {
       return "Pool";
     }
     break;
+#endif
   case SIGABRT:
     return "Process abort signal";
   case SIGALRM:
@@ -1128,8 +1130,10 @@ static uintptr_t coffeecatch_get_pc_from_ucontext(const ucontext_t *uc) {
   return uc->uc_mcontext.arm_pc;
 #elif defined(__aarch64__)
   return uc->uc_mcontext.pc;
+#elif defined(__APPLE__)
+    return uc->uc_mcontext->__ss.__rip;
 #elif (defined(__x86_64__))
-  return uc->uc_mcontext.gregs[REG_RIP];
+  return uc->uc_mcontext->gregs[REG_RIP];
 #elif (defined(__i386))
   return uc->uc_mcontext.gregs[REG_EIP];
 #elif (defined (__ppc__)) || (defined (__powerpc__))
@@ -1299,7 +1303,7 @@ const char* coffeecatch_get_message() {
   } else {
     /* Static buffer in case of emergency */
     static char buffer[256];
-#ifdef _GNU_SOURCE
+#if defined(_GNU_SOURCE) && !defined(__APPLE__)
     return strerror_r(error, &buffer[0], sizeof(buffer));
 #else
     const int code = strerror_r(error, &buffer[0], sizeof(buffer));
@@ -1333,6 +1337,7 @@ static void coffeecatch_backtrace_symbols_fun(void *arg, const backtrace_symbol_
 /**
  * Enumerate backtrace information.
  */
+#ifdef __ANDROID__
 void coffeecatch_get_backtrace_info(void (*fun)(void *arg,
                                     const char *module,
                                     uintptr_t addr,
@@ -1354,9 +1359,10 @@ void coffeecatch_get_backtrace_info(void (*fun)(void *arg,
     for(i = 0; i < t->frames_size; i++) {
       const uintptr_t pc = t->frames[i].absolute_pc;
       format_pc_address_cb(pc, fun, arg);
-    }
+
   }
 }
+#endif
 
 /**
  * Returns 1 if we are already inside a coffeecatch block, 0 otherwise.
