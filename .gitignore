@@ -1,0 +1,11 @@
+#dynamic libraries
+*.dylib
+*.so
+*.dll
+
+#Clion folder
+.idea/
+
+*.out
+*.o
+sample
